@@ -30,6 +30,10 @@ func main() {
 
 	cfg := config.Load()
 
+	if err := postgres.RunMigrations(cfg.DB.DSN()); err != nil {
+		log.Fatal(err)
+	}
+
 	pool, err := postgres.NewPool(ctx, cfg.DB.DSN())
 	if err != nil {
 		log.Fatal(err)
