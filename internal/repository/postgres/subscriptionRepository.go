@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
+	"subscriptionManagement/internal/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -24,7 +26,7 @@ func (r *SubscriptionRepository) Create(ctx context.Context, sub *model.Subscrip
 	RETURNING id
 	`
 
-	return r.pool.QueryRow(
+	err := r.pool.QueryRow(
 		ctx,
 		query,
 		sub.ServiceName,
@@ -33,6 +35,19 @@ func (r *SubscriptionRepository) Create(ctx context.Context, sub *model.Subscrip
 		sub.StartDate,
 		sub.EndDate,
 	).Scan(&sub.ID)
+
+	if err != nil {
+		logger.Log.Error("failed to create subscription",
+			zap.Error(err),
+		)
+		return err
+	}
+
+	logger.Log.Info("subscription created",
+		zap.String("id", sub.ID),
+	)
+
+	return nil
 }
 
 func (r *SubscriptionRepository) GetByID(ctx context.Context, id string) (*model.Subscription, error) {
@@ -117,6 +132,7 @@ func (r *SubscriptionRepository) Update(ctx context.Context, sub *model.Subscrip
 	)
 
 	if err != nil {
+		logger.Log.Warn("error while updating", zap.Error(err))
 		return err
 	}
 

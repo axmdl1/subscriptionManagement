@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"go.uber.org/zap"
 	"net/http"
+	"subscriptionManagement/internal/logger"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +35,7 @@ func (h *SubscriptionHandler) Create(c *gin.Context) {
 	var req dto.CreateSubscriptionRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Log.Warn("invalid request body", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

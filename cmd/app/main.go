@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"log"
+	"subscriptionManagement/internal/logger"
 
 	"github.com/gin-gonic/gin"
 
@@ -18,6 +20,12 @@ import (
 )
 
 func main() {
+
+	if err := logger.Init(); err != nil {
+		log.Fatal(err)
+	}
+	defer logger.Sync()
+
 	ctx := context.Background()
 
 	cfg := config.Load()
@@ -38,6 +46,8 @@ func main() {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	log.Println("server started on port", cfg.AppPort)
+	logger.Log.Info("server started",
+		zap.String("port", cfg.AppPort),
+	)
 	router.Run(":" + cfg.AppPort)
 }
