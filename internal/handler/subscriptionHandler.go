@@ -20,6 +20,15 @@ func NewSubscriptionHandler(s service.SubscriptionService) *SubscriptionHandler 
 	return &SubscriptionHandler{service: s}
 }
 
+// Create godoc
+// @Summary Создать подписку
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param input body dto.CreateSubscriptionRequest true "subscription"
+// @Success 201 {object} dto.SubscriptionResponse
+// @Failure 400 {object} map[string]string
+// @Router /subscriptions [post]
 func (h *SubscriptionHandler) Create(c *gin.Context) {
 	var req dto.CreateSubscriptionRequest
 
@@ -61,6 +70,14 @@ func (h *SubscriptionHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, toResponse(created))
 }
 
+// GetByID godoc
+// @Summary Получить подписку по id
+// @Tags subscriptions
+// @Produce json
+// @Param id path string true "subscription id"
+// @Success 200 {object} dto.SubscriptionResponse
+// @Failure 404 {object} map[string]string
+// @Router /subscriptions/{id} [get]
 func (h *SubscriptionHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -73,6 +90,12 @@ func (h *SubscriptionHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, toResponse(sub))
 }
 
+// List godoc
+// @Summary Получить список подписок
+// @Tags subscriptions
+// @Produce json
+// @Success 200 {array} dto.SubscriptionResponse
+// @Router /subscriptions [get]
 func (h *SubscriptionHandler) List(c *gin.Context) {
 	subs, err := h.service.List(c.Request.Context())
 	if err != nil {
@@ -89,6 +112,13 @@ func (h *SubscriptionHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// Delete godoc
+// @Summary Удалить подписку
+// @Tags subscriptions
+// @Param id path string true "subscription id"
+// @Success 204
+// @Failure 404 {object} map[string]string
+// @Router /subscriptions/{id} [delete]
 func (h *SubscriptionHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 
@@ -100,6 +130,17 @@ func (h *SubscriptionHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// Total godoc
+// @Summary Сумма подписок за период
+// @Tags subscriptions
+// @Produce json
+// @Param from query string true "MM-YYYY"
+// @Param to query string true "MM-YYYY"
+// @Param user_id query string false "UUID"
+// @Param service_name query string false "Service name"
+// @Success 200 {object} map[string]int
+// @Failure 400 {object} map[string]string
+// @Router /subscriptions/total [get]
 func (h *SubscriptionHandler) Total(c *gin.Context) {
 
 	fromStr := c.Query("from")
